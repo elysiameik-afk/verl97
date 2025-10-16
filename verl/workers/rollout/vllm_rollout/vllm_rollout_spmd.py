@@ -280,27 +280,21 @@ class vLLMRollout(BaseRollout):
         batch_size = idx.size(0)
 
         non_tensor_batch = prompts.non_tensor_batch
+        
+        # DEBUG: Always print to check if raw_prompt_ids exists
+        has_raw_ids = "raw_prompt_ids" in non_tensor_batch
+        print(f"[Step3检查] raw_prompt_ids是否已存在: {'✅ 是(跳过_pre_process)' if has_raw_ids else '❌ 否(需要调用_pre_process)'}")
+        
         if "raw_prompt_ids" not in non_tensor_batch:
-            # DEBUG: Check before _pre_process_inputs
-            print(f"\n🔍 [DEBUG Step3-PreProcess] 调用_pre_process_inputs前:")
-            print(f"   pad_token_id={self.pad_token_id}")
-            if batch_size > 0:
-                first_prompt = idx[0].tolist()
-                print(f"   第1个prompt的input_ids (前10个): {first_prompt[:10]}")
-                print(f"   第1个prompt的input_ids (后10个): {first_prompt[-10:]}")
-            
+            print(f"[Step3] 开始调用_pre_process_inputs，batch_size={batch_size}")
             non_tensor_batch["raw_prompt_ids"] = np.array(
                 [_pre_process_inputs(self.pad_token_id, idx[i]) for i in range(batch_size)], dtype=object
             )
-            
-            # DEBUG: Check after _pre_process_inputs
-            print(f"\n🔍 [DEBUG Step3-PreProcess] 调用_pre_process_inputs后:")
-            if len(non_tensor_batch["raw_prompt_ids"]) > 0:
-                first_processed = non_tensor_batch["raw_prompt_ids"][0]
-                print(f"   第1个processed prompt (前10个): {list(first_processed[:10])}")
-                print(f"   第1个processed prompt (后10个): {list(first_processed[-10:])}")
-                print(f"   第一个token是1(BOS): {'✅ 是' if first_processed[0] == 1 else '❌ 否'}")
-            print()
+        
+        # DEBUG: Always print final raw_prompt_ids
+        if len(non_tensor_batch["raw_prompt_ids"]) > 0:
+            first_raw = non_tensor_batch["raw_prompt_ids"][0]
+            print(f"[Step3结果] 第1个raw_prompt_ids: 长度={len(first_raw)}, 前5个={list(first_raw[:5])}, 第一个是BOS: {'✅' if first_raw[0]==1 else '❌'}")
 
         if batch_size != len(non_tensor_batch["raw_prompt_ids"]):
             raise RuntimeError("vllm sharding manager is not work properly.")
