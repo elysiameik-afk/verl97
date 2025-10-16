@@ -41,7 +41,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.optim.lr=3e-5 \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.model.use_remove_padding=true \
-    actor_rollout_ref.model.custom_chat_template="[INST] {{ messages[0]['content'] }} [/INST]" \
+    'actor_rollout_ref.model.custom_chat_template=[INST] {{ messages[0]["content"] }} [/INST]' \
     actor_rollout_ref.model.lora_rank=32 \
     actor_rollout_ref.model.lora_alpha=32 \
     actor_rollout_ref.model.target_modules=all-linear \
