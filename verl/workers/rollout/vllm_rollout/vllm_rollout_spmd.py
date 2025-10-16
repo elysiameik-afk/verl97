@@ -81,29 +81,13 @@ def _pre_process_inputs(pad_token_id, prompt_token_ids: torch.Tensor) -> list[in
     # pad_token_id = self.llm_engine.tokenizer.pad_token_id if self.llm_engine.tokenizer.pad_token_id
     # is not None else self.llm_engine.tokenizer.eos_token_id
     
-    global _pre_process_debug_printed
-    
-    # DEBUG: Print before removing padding
+    # DEBUG: Simple print
     original_list = prompt_token_ids.tolist()
-    
     non_pad_index = torch.nonzero(prompt_token_ids != pad_token_id, as_tuple=False)[0][0]
     token_ids = prompt_token_ids[non_pad_index:].tolist()
     
-    # DEBUG: Print first time only
-    if not _pre_process_debug_printed:
-        _pre_process_debug_printed = True
-        print(f"\n🔍 [DEBUG _pre_process_inputs] 第一次调用:")
-        print(f"   pad_token_id={pad_token_id}")
-        print(f"   non_pad_index={non_pad_index.item()}")
-        print(f"   原始prompt长度: {len(original_list)}")
-        print(f"   原始prompt前10个token: {original_list[:10]}")
-        print(f"   原始prompt后10个token: {original_list[-10:]}")
-        print(f"   处理后长度: {len(token_ids)}")
-        print(f"   处理后前10个token: {token_ids[:10]}")
-        print(f"   处理后后10个token: {token_ids[-10:]}")
-        print(f"   第一个非padding token: {original_list[non_pad_index]}")
-        print(f"   是BOS(1): {'✅' if original_list[non_pad_index] == 1 else '❌'}")
-        print()
+    # 直接打印，简洁版
+    print(f"[_pre_process_inputs] pad_id={pad_token_id} idx={non_pad_index.item()} 原始[0]={original_list[non_pad_index]} 处理后[0]={token_ids[0]}")
     
     return token_ids
 
