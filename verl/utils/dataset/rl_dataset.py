@@ -305,6 +305,14 @@ class RLHFDataset(Dataset):
                 raw_prompt = messages
                 # For string prompts, add special tokens (e.g., BOS) to ensure proper model behavior
                 model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=True)
+                
+                # DEBUG: Check if BOS token is added
+                temp_ids = model_inputs["input_ids"][0].tolist()
+                if len(temp_ids) > 0 and temp_ids[0] == self.tokenizer.bos_token_id:
+                    pass  # BOS exists, good
+                else:
+                    print(f"⚠️  [DEBUG rl_dataset] Tokenize后没有BOS! 前10个token: {temp_ids[:10]}")
+                    print(f"   bos_token_id={self.tokenizer.bos_token_id}, raw_prompt前50字符: {raw_prompt[:50]}")
             else:
                 # Original logic: use apply_chat_template for chat format
                 raw_prompt = self.tokenizer.apply_chat_template(
