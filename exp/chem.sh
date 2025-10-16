@@ -33,7 +33,7 @@ python3 -m verl.trainer.main_ppo \
     data.shuffle=true \
     data.prompt_key=prompt \
     data.truncation='error' \
-    data.filter_overlong_prompts=true \
+    data.filter_overlong_prompts=false \
     actor_rollout_ref.model.path=/root/autodl-tmp/LlaSMol-EGFR-Final-exp3 \
     actor_rollout_ref.actor.optim.lr=3e-6 \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
