@@ -17,11 +17,12 @@ DATASET_PATH = "/root/autodl-tmp/verl97/verl/data/molecule_generation_train.parq
 
 # vLLM配置（对应chem.sh）
 VLLM_CONFIG = {
-    "tensor_parallel_size": 4,  # 和你的训练配置一致
-    "gpu_memory_utilization": 0.5,
+    "tensor_parallel_size": 1,  # 先用1卡测试，避免multiprocessing问题
+    "gpu_memory_utilization": 0.4,
     "max_model_len": 1024,
     "dtype": "bfloat16",
     "trust_remote_code": True,
+    "enforce_eager": True,  # 禁用CUDA graph，更稳定
 }
 
 # 采样参数（训练时）
