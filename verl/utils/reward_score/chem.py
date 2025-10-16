@@ -413,4 +413,9 @@ def compute_score(solution_str: str, ground_truth: str = "") -> Dict:
     # (meaning it's valid and has decent drug-like properties)
     acc = total_score > 3.0
     
-    return total_score
+    return {
+        "score": total_score,
+        "acc": acc,
+        "pred": smiles,
+        **reward_dict
+    }
