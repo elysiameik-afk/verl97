@@ -90,10 +90,10 @@ class ChemRLRewardManager:
             # score = compute_score_fn(solution_str=response_str, ground_truth=ground_truth)
             score_dict = compute_score_fn(response_str, ground_truth)
             score = score_dict["score"] if isinstance(score_dict, dict) else score_dict
-            reward_extra_info["logic_rl_score"].append(score_dict)
+            reward_extra_info["logic_rl_score"].append(score)  # 只保存数值，供metric计算
             reward_tensor[i, valid_response_length - 1] = score
 
-            print(f"🔍 [奖励调试] 样本{i}: score={score}, score_dict={score_dict}, 位置=({i}, {valid_response_length - 1})")
+            print(f"🔍 [奖励调试] 样本{i}: score={score}, 详细={score_dict}, 位置=({i}, {valid_response_length - 1})")
 
             if data_source not in already_print_data_sources:
                 already_print_data_sources[data_source] = 0
