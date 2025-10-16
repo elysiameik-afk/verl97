@@ -322,13 +322,11 @@ class vLLMRollout(BaseRollout):
         # DEBUG: Print first prompt to check input
         if len(vllm_inputs) > 0:
             first_prompt_ids = vllm_inputs[0]["prompt_token_ids"]
-            print(f"\n🔍 [DEBUG] 输入vLLM的第1个prompt:")
-            print(f"   Prompt长度: {len(first_prompt_ids)} tokens")
-            print(f"   Token IDs (前30个): {first_prompt_ids[:30]}")
-            print(f"   Token IDs (后10个): {first_prompt_ids[-10:]}")
-            # 检查是否有BOS token (Mistral的BOS=1)
-            has_bos = first_prompt_ids[0] == 1 if len(first_prompt_ids) > 0 else False
-            print(f"   包含BOS token (id=1): {'✅ 是' if has_bos else '❌ 否'}")
+            print(f"\n🔍 [DEBUG-Final] 最终传给vLLM的prompt:")
+            print(f"   长度: {len(first_prompt_ids)} tokens")
+            print(f"   完整token IDs: {first_prompt_ids}")  # 打印完整的
+            print(f"   第一个token: {first_prompt_ids[0] if len(first_prompt_ids)>0 else 'N/A'}")
+            print(f"   第一个是BOS(1): {'✅' if (len(first_prompt_ids)>0 and first_prompt_ids[0]==1) else '❌'}")
             print()
 
         do_sample = prompts.meta_info.get("do_sample", True)
@@ -360,8 +358,14 @@ class vLLMRollout(BaseRollout):
                     LoRARequest(lora_name=f"{lora_int_id}", lora_int_id=lora_int_id, lora_path="/simon-stub-path")
                 ] * batch_size
 
+        # DEBUG: Print kwargs before update
+        print(f"[采样参数更新] do_sample={do_sample}, is_validate={is_validate}, kwargs={kwargs}")
+        
         # users can customize different sampling_params at different run
         with self.update_sampling_params(**kwargs):
+            # DEBUG: Print actual sampling params
+            print(f"\n[vLLM采样参数] temperature={self.sampling_params.temperature}, top_p={self.sampling_params.top_p}, top_k={self.sampling_params.top_k}, repetition_penalty={self.sampling_params.repetition_penalty}")
+            
             outputs = self.inference_engine.generate(
                 prompts=vllm_inputs,  # because we have already convert it to prompt token id
                 sampling_params=self.sampling_params,
@@ -372,14 +376,9 @@ class vLLMRollout(BaseRollout):
             # DEBUG: Print first output to check vLLM generation
             if len(outputs) > 0 and len(outputs[0].outputs) > 0:
                 first_output_ids = outputs[0].outputs[0].token_ids
-                print(f"\n🔍 [DEBUG] vLLM生成的第1个response:")
-                print(f"   Response长度: {len(first_output_ids)} tokens")
-                print(f"   Token IDs (前30个): {first_output_ids[:30]}")
-                print(f"   Token IDs (后10个): {first_output_ids[-10:]}")
-                # 检查是否包含常见的SMILES相关token
-                # <SMILES> 的 '<' 通常是 523, 'SM' 可能是 4237 等
-                has_angle_bracket = any(tid < 600 and tid > 500 for tid in first_output_ids[:10])
-                print(f"   开头包含特殊字符token (<600): {'✅ 是' if has_angle_bracket else '❌ 否'}")
+                print(f"\n🔍 [DEBUG-Output] vLLM生成的response:")
+                print(f"   长度: {len(first_output_ids)} tokens")
+                print(f"   完整输出token IDs: {first_output_ids}")  # 打印完整的
                 print()
 
             # TODO(sgm): disable logprob when recompute_log_prob is enable
