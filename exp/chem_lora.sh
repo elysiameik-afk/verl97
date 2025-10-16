@@ -16,6 +16,9 @@ export HYDRA_FULL_ERROR=1
 MAX_RESPONSE_LENGTH=512
 
 # FIX: 重新使用反斜杠 `\` 来分割长命令，确保脚本可读性和正确性
+# ===================================================================
+# LoRA版本配置 - 启用LoRA训练以节省显存和加速训练
+# ===================================================================
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     actor_rollout_ref.actor.policy_loss.loss_mode=plic_p \
@@ -35,9 +38,12 @@ python3 -m verl.trainer.main_ppo \
     data.truncation='error' \
     data.filter_overlong_prompts=true \
     actor_rollout_ref.model.path=/root/autodl-tmp/LlaSMol-EGFR-Final-exp3 \
-    actor_rollout_ref.actor.optim.lr=3e-6 \
+    actor_rollout_ref.actor.optim.lr=3e-5 \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.model.use_remove_padding=true \
+    actor_rollout_ref.model.lora_rank=32 \
+    actor_rollout_ref.model.lora_alpha=32 \
+    actor_rollout_ref.model.target_modules=all-linear \
     actor_rollout_ref.actor.ppo_mini_batch_size=8 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=4 \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
@@ -48,6 +54,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.loss_agg_mode="seq-mean-token-mean" \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.n=8 \
+    actor_rollout_ref.rollout.load_format=safetensors \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
     actor_rollout_ref.rollout.max_num_batched_tokens=8192 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
@@ -67,8 +74,8 @@ python3 -m verl.trainer.main_ppo \
     +reward_model.reward_kwargs.overlong_buffer_cfg.penalty_factor=1.0 \
     +reward_model.reward_kwargs.max_resp_len=${MAX_RESPONSE_LENGTH} \
     trainer.project_name=CHEMRL \
-    trainer.experiment_name=egfr-1 \
-    trainer.default_local_dir=/root/autodl-tmp/verl97/verl/ckpts/CHEMRL/egfr-1\
+    trainer.experiment_name=egfr-1-lora \
+    trainer.default_local_dir=/root/autodl-tmp/verl97/verl/ckpts/CHEMRL/egfr-1-lora\
     trainer.critic_warmup=0 \
     trainer.save_freq=16 \
     trainer.test_freq=1 \
@@ -80,3 +87,4 @@ python3 -m verl.trainer.main_ppo \
     trainer.resume_mode=auto \
     trainer.log_val_generations=2 \
     $@
+
