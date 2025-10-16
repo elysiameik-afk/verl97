@@ -368,7 +368,14 @@ class RLHFDataset(Dataset):
         row_dict["attention_mask"] = attention_mask[0]
         row_dict["position_ids"] = position_ids[0]
 
-        raw_prompt_ids = self.tokenizer.encode(raw_prompt, add_special_tokens=False)
+        # For string prompts, add special tokens; for chat format, they're already included
+        if isinstance(messages, str):
+            raw_prompt_ids = self.tokenizer.encode(raw_prompt, add_special_tokens=True)
+            print(f"[DEBUG Step4-RawPromptIds] 字符串prompt，add_special_tokens=True")
+            print(f"   raw_prompt_ids前5个: {raw_prompt_ids[:5]}, 第一个是BOS: {'✅' if raw_prompt_ids[0]==1 else '❌'}")
+        else:
+            raw_prompt_ids = self.tokenizer.encode(raw_prompt, add_special_tokens=False)
+        
         if len(raw_prompt_ids) > self.max_prompt_length:
             if self.truncation == "left":
                 raw_prompt_ids = raw_prompt_ids[-self.max_prompt_length :]
