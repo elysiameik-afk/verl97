@@ -21,11 +21,16 @@ except ImportError:
 MODEL_PATH = "/root/autodl-tmp/LlaSMol-EGFR-Final-exp3"
 
 # vLLM配置（对应你的训练配置）
+# 如果报错，可以尝试调整这些参数
 VLLM_CONFIG = {
-    "tensor_parallel_size": 2,  # 使用2卡张量并行
-    "gpu_memory_utilization": 0.5,
-    "max_model_len": 1024,  # 512 prompt + 512 response
+    "tensor_parallel_size": 1,  # 先用单卡测试，避免张量并行问题
+    "gpu_memory_utilization": 0.4,  # 降低到0.4
+    "max_model_len": 512,  # 降低到512，减少显存需求
     "dtype": "bfloat16",
+    "trust_remote_code": True,
+    # 如果还报错，取消注释下面的选项
+    # "enforce_eager": True,  # 禁用CUDA graph，可能更稳定但慢
+    # "disable_custom_all_reduce": True,  # 禁用自定义all-reduce
 }
 
 # 测试prompt列表
