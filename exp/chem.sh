@@ -33,7 +33,7 @@ python3 -m verl.trainer.main_ppo \
     data.shuffle=true \
     data.prompt_key=prompt \
     data.truncation='error' \
-    data.filter_overlong_prompts=false \
+    data.filter_overlong_prompts=true \
     actor_rollout_ref.model.path=/root/autodl-tmp/LlaSMol-EGFR-Final-exp3 \
     actor_rollout_ref.actor.optim.lr=3e-6 \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
@@ -67,8 +67,8 @@ python3 -m verl.trainer.main_ppo \
     +reward_model.reward_kwargs.overlong_buffer_cfg.penalty_factor=1.0 \
     +reward_model.reward_kwargs.max_resp_len=${MAX_RESPONSE_LENGTH} \
     trainer.project_name=CHEMRL \
-    trainer.experiment_name=egfr-1 \
-    trainer.default_local_dir=/root/autodl-tmp/verl97/verl/ckpts/CHEMRL/egfr-1\
+    trainer.experiment_name=egfr-2 \
+    trainer.default_local_dir=/root/autodl-tmp/verl97/verl/ckpts/CHEMRL/egfr-2\
     trainer.critic_warmup=0 \
     trainer.save_freq=16 \
     trainer.test_freq=1 \
