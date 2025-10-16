@@ -74,10 +74,14 @@ logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
 # NOTE(sgm): add for verl. We can optimize it by making the dataloader yield List[int] without padding.
+_pre_process_debug_printed = False
+
 def _pre_process_inputs(pad_token_id, prompt_token_ids: torch.Tensor) -> list[int]:
     # remove the left padding in the prompt token_id
     # pad_token_id = self.llm_engine.tokenizer.pad_token_id if self.llm_engine.tokenizer.pad_token_id
     # is not None else self.llm_engine.tokenizer.eos_token_id
+    
+    global _pre_process_debug_printed
     
     # DEBUG: Print before removing padding
     original_list = prompt_token_ids.tolist()
@@ -85,14 +89,21 @@ def _pre_process_inputs(pad_token_id, prompt_token_ids: torch.Tensor) -> list[in
     non_pad_index = torch.nonzero(prompt_token_ids != pad_token_id, as_tuple=False)[0][0]
     token_ids = prompt_token_ids[non_pad_index:].tolist()
     
-    # DEBUG: Check if BOS was removed
-    if len(original_list) > non_pad_index and original_list[non_pad_index] != 1:
-        print(f"⚠️  [DEBUG _pre_process_inputs] BOS被去掉了!")
+    # DEBUG: Print first time only
+    if not _pre_process_debug_printed:
+        _pre_process_debug_printed = True
+        print(f"\n🔍 [DEBUG _pre_process_inputs] 第一次调用:")
         print(f"   pad_token_id={pad_token_id}")
-        print(f"   non_pad_index={non_pad_index}")
-        print(f"   原始前10个: {original_list[:10]}")
-        print(f"   处理后前10个: {token_ids[:10]}")
+        print(f"   non_pad_index={non_pad_index.item()}")
+        print(f"   原始prompt长度: {len(original_list)}")
+        print(f"   原始prompt前10个token: {original_list[:10]}")
+        print(f"   原始prompt后10个token: {original_list[-10:]}")
+        print(f"   处理后长度: {len(token_ids)}")
+        print(f"   处理后前10个token: {token_ids[:10]}")
+        print(f"   处理后后10个token: {token_ids[-10:]}")
         print(f"   第一个非padding token: {original_list[non_pad_index]}")
+        print(f"   是BOS(1): {'✅' if original_list[non_pad_index] == 1 else '❌'}")
+        print()
     
     return token_ids
 
