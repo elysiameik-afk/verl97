@@ -272,9 +272,26 @@ class vLLMRollout(BaseRollout):
 
         non_tensor_batch = prompts.non_tensor_batch
         if "raw_prompt_ids" not in non_tensor_batch:
+            # DEBUG: Check before _pre_process_inputs
+            print(f"\n🔍 [DEBUG Step3-PreProcess] 调用_pre_process_inputs前:")
+            print(f"   pad_token_id={self.pad_token_id}")
+            if batch_size > 0:
+                first_prompt = idx[0].tolist()
+                print(f"   第1个prompt的input_ids (前10个): {first_prompt[:10]}")
+                print(f"   第1个prompt的input_ids (后10个): {first_prompt[-10:]}")
+            
             non_tensor_batch["raw_prompt_ids"] = np.array(
                 [_pre_process_inputs(self.pad_token_id, idx[i]) for i in range(batch_size)], dtype=object
             )
+            
+            # DEBUG: Check after _pre_process_inputs
+            print(f"\n🔍 [DEBUG Step3-PreProcess] 调用_pre_process_inputs后:")
+            if len(non_tensor_batch["raw_prompt_ids"]) > 0:
+                first_processed = non_tensor_batch["raw_prompt_ids"][0]
+                print(f"   第1个processed prompt (前10个): {list(first_processed[:10])}")
+                print(f"   第1个processed prompt (后10个): {list(first_processed[-10:])}")
+                print(f"   第一个token是1(BOS): {'✅ 是' if first_processed[0] == 1 else '❌ 否'}")
+            print()
 
         if batch_size != len(non_tensor_batch["raw_prompt_ids"]):
             raise RuntimeError("vllm sharding manager is not work properly.")

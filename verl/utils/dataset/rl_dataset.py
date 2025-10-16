@@ -306,13 +306,13 @@ class RLHFDataset(Dataset):
                 # For string prompts, add special tokens (e.g., BOS) to ensure proper model behavior
                 model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=True)
                 
-                # DEBUG: Check if BOS token is added
+                # DEBUG: Check if BOS token is added after tokenization
                 temp_ids = model_inputs["input_ids"][0].tolist()
-                if len(temp_ids) > 0 and temp_ids[0] == self.tokenizer.bos_token_id:
-                    pass  # BOS exists, good
-                else:
-                    print(f"⚠️  [DEBUG rl_dataset] Tokenize后没有BOS! 前10个token: {temp_ids[:10]}")
-                    print(f"   bos_token_id={self.tokenizer.bos_token_id}, raw_prompt前50字符: {raw_prompt[:50]}")
+                print(f"\n🔍 [DEBUG Step1-Tokenize] 刚tokenize完:")
+                print(f"   bos_token_id={self.tokenizer.bos_token_id}, pad_token_id={self.tokenizer.pad_token_id}")
+                print(f"   Token IDs (前10个): {temp_ids[:10]}")
+                print(f"   第一个token是BOS: {'✅ 是' if temp_ids[0] == self.tokenizer.bos_token_id else '❌ 否'}")
+                print(f"   原始prompt前50字符: {raw_prompt[:50]}")
             else:
                 # Original logic: use apply_chat_template for chat format
                 raw_prompt = self.tokenizer.apply_chat_template(
@@ -332,6 +332,20 @@ class RLHFDataset(Dataset):
             left_pad=True,
             truncation=self.truncation,
         )
+        
+        # DEBUG: Check if BOS token still exists after postprocess_data
+        if isinstance(messages, str):
+            # 找到第一个非padding token
+            non_pad_mask = input_ids[0] != self.tokenizer.pad_token_id
+            if non_pad_mask.any():
+                first_non_pad_idx = non_pad_mask.nonzero(as_tuple=True)[0][0].item()
+                first_token = input_ids[0][first_non_pad_idx].item()
+                print(f"🔍 [DEBUG Step2-PostProcess] postprocess_data后:")
+                print(f"   Input_ids shape: {input_ids.shape}")
+                print(f"   第一个非padding token: {first_token}")
+                print(f"   是BOS: {'✅ 是' if first_token == self.tokenizer.bos_token_id else '❌ 否'}")
+                print(f"   Token IDs (非padding部分前10个): {input_ids[0][first_non_pad_idx:first_non_pad_idx+10].tolist()}")
+                print()
 
         if self.processor is not None and "Qwen2VLImageProcessor" in self.processor.image_processor.__class__.__name__:
             from verl.models.transformers.qwen2_vl import get_rope_index
