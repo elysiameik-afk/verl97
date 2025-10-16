@@ -78,8 +78,22 @@ def _pre_process_inputs(pad_token_id, prompt_token_ids: torch.Tensor) -> list[in
     # remove the left padding in the prompt token_id
     # pad_token_id = self.llm_engine.tokenizer.pad_token_id if self.llm_engine.tokenizer.pad_token_id
     # is not None else self.llm_engine.tokenizer.eos_token_id
+    
+    # DEBUG: Print before removing padding
+    original_list = prompt_token_ids.tolist()
+    
     non_pad_index = torch.nonzero(prompt_token_ids != pad_token_id, as_tuple=False)[0][0]
     token_ids = prompt_token_ids[non_pad_index:].tolist()
+    
+    # DEBUG: Check if BOS was removed
+    if len(original_list) > non_pad_index and original_list[non_pad_index] != 1:
+        print(f"⚠️  [DEBUG _pre_process_inputs] BOS被去掉了!")
+        print(f"   pad_token_id={pad_token_id}")
+        print(f"   non_pad_index={non_pad_index}")
+        print(f"   原始前10个: {original_list[:10]}")
+        print(f"   处理后前10个: {token_ids[:10]}")
+        print(f"   第一个非padding token: {original_list[non_pad_index]}")
+    
     return token_ids
 
 
