@@ -88,6 +88,7 @@ class ChemRLRewardManager:
             
             # The Logic-RL score functions expect the full response string
             # score = compute_score_fn(solution_str=response_str, ground_truth=ground_truth)
+            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",response_str)
             score_dict = compute_score_fn(response_str, ground_truth)
             score = score_dict["score"] if isinstance(score_dict, dict) else score_dict
             reward_extra_info["logic_rl_score"].append(score)  # 只保存数值，供metric计算
