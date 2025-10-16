@@ -301,12 +301,14 @@ class vLLMRollout(BaseRollout):
         
         # DEBUG: Print first prompt to check input
         if len(vllm_inputs) > 0:
-            debug_tokenizer = self.inference_engine.llm_engine.tokenizer
             first_prompt_ids = vllm_inputs[0]["prompt_token_ids"]
-            decoded_prompt = debug_tokenizer.decode(first_prompt_ids, skip_special_tokens=False)
             print(f"\n🔍 [DEBUG] 输入vLLM的第1个prompt:")
-            print(f"   Token IDs (前20个): {first_prompt_ids[:20]}")
-            print(f"   Decoded prompt: {decoded_prompt[:200]}...")
+            print(f"   Prompt长度: {len(first_prompt_ids)} tokens")
+            print(f"   Token IDs (前30个): {first_prompt_ids[:30]}")
+            print(f"   Token IDs (后10个): {first_prompt_ids[-10:]}")
+            # 检查是否有BOS token (Mistral的BOS=1)
+            has_bos = first_prompt_ids[0] == 1 if len(first_prompt_ids) > 0 else False
+            print(f"   包含BOS token (id=1): {'✅ 是' if has_bos else '❌ 否'}")
             print()
 
         do_sample = prompts.meta_info.get("do_sample", True)
@@ -349,12 +351,15 @@ class vLLMRollout(BaseRollout):
             
             # DEBUG: Print first output to check vLLM generation
             if len(outputs) > 0 and len(outputs[0].outputs) > 0:
-                debug_tokenizer = self.inference_engine.llm_engine.tokenizer
                 first_output_ids = outputs[0].outputs[0].token_ids
-                decoded_output = debug_tokenizer.decode(first_output_ids, skip_special_tokens=False)
                 print(f"\n🔍 [DEBUG] vLLM生成的第1个response:")
-                print(f"   Token IDs (前20个): {first_output_ids[:20]}")
-                print(f"   Decoded response: {decoded_output[:200]}...")
+                print(f"   Response长度: {len(first_output_ids)} tokens")
+                print(f"   Token IDs (前30个): {first_output_ids[:30]}")
+                print(f"   Token IDs (后10个): {first_output_ids[-10:]}")
+                # 检查是否包含常见的SMILES相关token
+                # <SMILES> 的 '<' 通常是 523, 'SM' 可能是 4237 等
+                has_angle_bracket = any(tid < 600 and tid > 500 for tid in first_output_ids[:10])
+                print(f"   开头包含特殊字符token (<600): {'✅ 是' if has_angle_bracket else '❌ 否'}")
                 print()
 
             # TODO(sgm): disable logprob when recompute_log_prob is enable
