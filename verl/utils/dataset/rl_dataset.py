@@ -303,13 +303,16 @@ class RLHFDataset(Dataset):
             # Support for string prompts (backward compatible)
             if isinstance(messages, str):
                 raw_prompt = messages
+                # For string prompts, add special tokens (e.g., BOS) to ensure proper model behavior
+                model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=True)
             else:
                 # Original logic: use apply_chat_template for chat format
                 raw_prompt = self.tokenizer.apply_chat_template(
                     messages, add_generation_prompt=True, tokenize=False, **self.apply_chat_template_kwargs
                 )
+                # Chat template already includes special tokens, so don't add them again
+                model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=False)
             
-            model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=False)
             input_ids = model_inputs.pop("input_ids")
             attention_mask = model_inputs.pop("attention_mask")
 
