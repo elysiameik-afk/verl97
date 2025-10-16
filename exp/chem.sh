@@ -24,8 +24,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.clip_ratio_high=0.0004 \
     actor_rollout_ref.actor.use_kl_loss=False \
     actor_rollout_ref.actor.kl_loss_coef=0.0 \
-    data.train_files=/root/autodl-tmp/myverl/data/kk/4ppl_few/train.parquet \
-    data.val_files=/root/autodl-tmp/myverl/data/kk/4ppl_few/test.parquet \
+    data.train_files=/root/autodl-tmp/verl97/verl/data/molecule_generation_train.parquet \
+    data.val_files=/root/autodl-tmp/verl97/verl/data/molecule_generation_val.parquet \
     data.train_batch_size=16 \
     data.val_batch_size=8 \
     data.max_prompt_length=4096 \
@@ -34,7 +34,7 @@ python3 -m verl.trainer.main_ppo \
     data.prompt_key=prompt \
     data.truncation='error' \
     data.filter_overlong_prompts=true \
-    actor_rollout_ref.model.path=/root/autodl-tmp/verldev/Verl_RL/mymodels/qwen3-0.6b \
+    actor_rollout_ref.model.path=/root/autodl-tmp/LlaSMol-EGFR-Final-exp3 \
     actor_rollout_ref.actor.optim.lr=3e-6 \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.model.use_remove_padding=true \
@@ -48,7 +48,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.loss_agg_mode="seq-mean-token-mean" \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.n=8 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.4 \
     actor_rollout_ref.rollout.max_num_batched_tokens=16384 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=4 \
@@ -61,14 +61,14 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.val_kwargs.top_p=0.7 \
     actor_rollout_ref.rollout.val_kwargs.top_k=-1 \
     actor_rollout_ref.rollout.val_kwargs.n=1 \
-    reward_model.reward_manager=logic_rl \
+    reward_model.reward_manager=chem_rl \
     +reward_model.reward_kwargs.overlong_buffer_cfg.enable=false \
     +reward_model.reward_kwargs.overlong_buffer_cfg.len=2000 \
     +reward_model.reward_kwargs.overlong_buffer_cfg.penalty_factor=1.0 \
     +reward_model.reward_kwargs.max_resp_len=${MAX_RESPONSE_LENGTH} \
-    trainer.project_name=Qwen2.5-0.5-TokenEMA \
-    trainer.experiment_name=plic1.1 \
-    trainer.default_local_dir=/root/autodl-tmp/verldev/Verl_RL/ckpts/Qwen2.5-0.5/plic1.1\
+    trainer.project_name=CHEMRL \
+    trainer.experiment_name=egfr-1 \
+    trainer.default_local_dir=/root/autodl-tmp/verl97/verl/ckpts/CHEMRL/egfr-1\
     trainer.critic_warmup=0 \
     trainer.save_freq=16 \
     trainer.test_freq=1 \

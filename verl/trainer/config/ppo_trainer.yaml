@@ -47,7 +47,7 @@ actor_rollout_ref:
   actor:
     policy_loss:
       # Power parameter for PLIC-p framework (default: 0.0 for original GSPO)
-      plic_p: 0.0
+      plic_p: 1.1
 
   # Rollout model config.
   rollout:

@@ -63,7 +63,7 @@ policy_loss:
   ppo_kl_coef: 0.1
 
   # Power parameter for PLIC-p framework (p=0 corresponds to geometric mean/original GSPO)
-  plic_p: 0.0
+  plic_p: 1.1
 
 # Constant C in Dual-clip PPO; clips when advantage < 0 and ratio > C
 clip_ratio_c: 3.0

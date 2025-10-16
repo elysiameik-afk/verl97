@@ -19,7 +19,7 @@ MAX_RESPONSE_LENGTH=2048
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     actor_rollout_ref.actor.policy_loss.loss_mode=plic_p \
-    actor_rollout_ref.actor.policy_loss.plic_p=0.0 \
+    actor_rollout_ref.actor.policy_loss.plic_p=2.0 \
     actor_rollout_ref.actor.clip_ratio_low=0.0003 \
     actor_rollout_ref.actor.clip_ratio_high=0.0004 \
     actor_rollout_ref.actor.use_kl_loss=False \
@@ -67,8 +67,8 @@ python3 -m verl.trainer.main_ppo \
     +reward_model.reward_kwargs.overlong_buffer_cfg.penalty_factor=1.0 \
     +reward_model.reward_kwargs.max_resp_len=${MAX_RESPONSE_LENGTH} \
     trainer.project_name=Qwen2.5-0.5-TokenEMA \
-    trainer.experiment_name=plic1.1 \
-    trainer.default_local_dir=/root/autodl-tmp/verldev/Verl_RL/ckpts/Qwen2.5-0.5/plic1.1\
+    trainer.experiment_name=plic2.0 \
+    trainer.default_local_dir=/root/autodl-tmp/verldev/Verl_RL/ckpts/Qwen2.5-0.5/plic2.0\
     trainer.critic_warmup=0 \
     trainer.save_freq=16 \
     trainer.test_freq=1 \
