@@ -298,6 +298,17 @@ class vLLMRollout(BaseRollout):
                 )
 
             input_data["prompt_token_ids"] = list(input_data["prompt_token_ids"])
+        
+        # DEBUG: Print first prompt to check input
+        if len(vllm_inputs) > 0:
+            from verl.utils.tokenizer import get_tokenizer
+            debug_tokenizer = get_tokenizer(self.inference_engine.llm_engine.model_config.tokenizer)
+            first_prompt_ids = vllm_inputs[0]["prompt_token_ids"]
+            decoded_prompt = debug_tokenizer.decode(first_prompt_ids, skip_special_tokens=False)
+            print(f"\n🔍 [DEBUG] 输入vLLM的第1个prompt:")
+            print(f"   Token IDs (前20个): {first_prompt_ids[:20]}")
+            print(f"   Decoded prompt: {decoded_prompt[:200]}...")
+            print()
 
         do_sample = prompts.meta_info.get("do_sample", True)
         is_validate = prompts.meta_info.get("validate", False)
@@ -336,6 +347,17 @@ class vLLMRollout(BaseRollout):
                 lora_request=lora_requests,
                 use_tqdm=False,
             )
+            
+            # DEBUG: Print first output to check vLLM generation
+            if len(outputs) > 0 and len(outputs[0].outputs) > 0:
+                from verl.utils.tokenizer import get_tokenizer
+                debug_tokenizer = get_tokenizer(self.inference_engine.llm_engine.model_config.tokenizer)
+                first_output_ids = outputs[0].outputs[0].token_ids
+                decoded_output = debug_tokenizer.decode(first_output_ids, skip_special_tokens=False)
+                print(f"\n🔍 [DEBUG] vLLM生成的第1个response:")
+                print(f"   Token IDs (前20个): {first_output_ids[:20]}")
+                print(f"   Decoded response: {decoded_output[:200]}...")
+                print()
 
             # TODO(sgm): disable logprob when recompute_log_prob is enable
             # if n = 1: (bs, response_length) ; if n > 1: (bs * n, response_length)
