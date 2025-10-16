@@ -154,9 +154,15 @@ class RLHFDataset(Dataset):
 
                 def doc2len(doc) -> int:
                     messages = self._build_messages(doc)
-                    raw_prompt = self.processor.apply_chat_template(
-                        messages, add_generation_prompt=True, tokenize=False, **self.apply_chat_template_kwargs
-                    )
+                    
+                    # Support for string prompts (backward compatible)
+                    if isinstance(messages, str):
+                        raw_prompt = messages
+                    else:
+                        # Original logic: use apply_chat_template for chat format
+                        raw_prompt = self.processor.apply_chat_template(
+                            messages, add_generation_prompt=True, tokenize=False, **self.apply_chat_template_kwargs
+                        )
                     images = (
                         [process_image(image) for image in doc[image_key]]
                         if image_key in doc and doc[image_key]
@@ -173,9 +179,16 @@ class RLHFDataset(Dataset):
             else:
 
                 def doc2len(doc) -> int:
+                    prompt = doc[prompt_key]
+                    
+                    # Support for string prompts (backward compatible)
+                    if isinstance(prompt, str):
+                        return len(tokenizer.encode(prompt, add_special_tokens=True))
+                    
+                    # Original logic: use apply_chat_template for chat format
                     return len(
                         tokenizer.apply_chat_template(
-                            doc[prompt_key], add_generation_prompt=True, **self.apply_chat_template_kwargs
+                            prompt, add_generation_prompt=True, **self.apply_chat_template_kwargs
                         )
                     )
 
@@ -201,7 +214,14 @@ class RLHFDataset(Dataset):
         return len(self.dataframe)
 
     def _build_messages(self, example: dict):
-        messages: list = example.pop(self.prompt_key)
+        prompt = example.pop(self.prompt_key)
+        
+        # Support for string prompts (backward compatible)
+        if isinstance(prompt, str):
+            return prompt
+        
+        # Original logic: handle chat format (list of messages)
+        messages: list = prompt
 
         if self.image_key in example or self.video_key in example:
             for message in messages:
@@ -232,9 +252,14 @@ class RLHFDataset(Dataset):
         if self.processor is not None:
             from verl.utils.dataset.vision_utils import process_image, process_video
 
-            raw_prompt = self.processor.apply_chat_template(
-                messages, add_generation_prompt=True, tokenize=False, **self.apply_chat_template_kwargs
-            )
+            # Support for string prompts (backward compatible)
+            if isinstance(messages, str):
+                raw_prompt = messages
+            else:
+                # Original logic: use apply_chat_template for chat format
+                raw_prompt = self.processor.apply_chat_template(
+                    messages, add_generation_prompt=True, tokenize=False, **self.apply_chat_template_kwargs
+                )
             multi_modal_data = {}
 
             images = None
@@ -275,9 +300,15 @@ class RLHFDataset(Dataset):
                 row_dict["multi_modal_inputs"].pop("second_per_grid_ts", None)
 
         else:
-            raw_prompt = self.tokenizer.apply_chat_template(
-                messages, add_generation_prompt=True, tokenize=False, **self.apply_chat_template_kwargs
-            )
+            # Support for string prompts (backward compatible)
+            if isinstance(messages, str):
+                raw_prompt = messages
+            else:
+                # Original logic: use apply_chat_template for chat format
+                raw_prompt = self.tokenizer.apply_chat_template(
+                    messages, add_generation_prompt=True, tokenize=False, **self.apply_chat_template_kwargs
+                )
+            
             model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=False)
             input_ids = model_inputs.pop("input_ids")
             attention_mask = model_inputs.pop("attention_mask")
