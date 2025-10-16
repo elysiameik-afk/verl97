@@ -38,7 +38,6 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.optim.lr=3e-6 \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.model.use_remove_padding=true \
-    'actor_rollout_ref.model.custom_chat_template=[INST] {{ messages[0]["content"] }} [/INST]' \
     actor_rollout_ref.actor.ppo_mini_batch_size=8 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=4 \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
