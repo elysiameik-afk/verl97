@@ -301,7 +301,7 @@ class vLLMRollout(BaseRollout):
         
         # DEBUG: Print first prompt to check input
         if len(vllm_inputs) > 0:
-            debug_tokenizer = self.inference_engine.llm_engine.get_tokenizer()
+            debug_tokenizer = self.inference_engine.llm_engine.tokenizer
             first_prompt_ids = vllm_inputs[0]["prompt_token_ids"]
             decoded_prompt = debug_tokenizer.decode(first_prompt_ids, skip_special_tokens=False)
             print(f"\n🔍 [DEBUG] 输入vLLM的第1个prompt:")
@@ -349,7 +349,7 @@ class vLLMRollout(BaseRollout):
             
             # DEBUG: Print first output to check vLLM generation
             if len(outputs) > 0 and len(outputs[0].outputs) > 0:
-                debug_tokenizer = self.inference_engine.llm_engine.get_tokenizer()
+                debug_tokenizer = self.inference_engine.llm_engine.tokenizer
                 first_output_ids = outputs[0].outputs[0].token_ids
                 decoded_output = debug_tokenizer.decode(first_output_ids, skip_special_tokens=False)
                 print(f"\n🔍 [DEBUG] vLLM生成的第1个response:")
