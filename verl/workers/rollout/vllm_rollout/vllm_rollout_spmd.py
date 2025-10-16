@@ -187,6 +187,11 @@ class vLLMRollout(BaseRollout):
             else:
                 logger.warning(f"cudagraph_capture_sizes must be a list, but got {cudagraph_capture_sizes}")
 
+        # Use random seed instead of fixed seed to avoid deterministic failure patterns
+        import random
+        random_seed = config.get("seed", random.randint(0, 2**32 - 1))
+        print(f"[vLLM初始化] 使用随机seed: {random_seed}")
+        
         self.inference_engine = LLM(
             model=model_path,
             enable_sleep_mode=config.free_cache_engine,
@@ -205,7 +210,7 @@ class vLLMRollout(BaseRollout):
             enable_chunked_prefill=config.enable_chunked_prefill,
             enable_prefix_caching=True,
             trust_remote_code=trust_remote_code,
-            seed=config.get("seed", 0),
+            seed=random_seed,  # 使用随机seed而不是固定的0
             **compilation_config,
             **self.lora_kwargs,
             **engine_kwargs,
